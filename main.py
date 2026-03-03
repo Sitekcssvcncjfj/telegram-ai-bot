@@ -4,8 +4,8 @@ import os
 import openai
 
 TOKEN = "8787679143:AAGRBpARDCSG5-ktbmf_fLiIFaDT7IuwP2s"
-openai.api_key = os.getenv(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
-)
+
+openai.api_key = "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"
 
 warnings = {}
 
