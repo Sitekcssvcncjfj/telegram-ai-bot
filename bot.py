@@ -53,15 +53,51 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
 
         [InlineKeyboardButton("🤖 AI Sohbet", callback_data="menu_ai")],
-
         [InlineKeyboardButton("🖼 Resim Oluştur", callback_data="menu_img")],
-
         [InlineKeyboardButton("⚡ Komutlar", callback_data="menu_commands")],
-
         [InlineKeyboardButton("➕ Beni Gruba Ekle", url=f"https://t.me/{context.bot.username}?startgroup=true")]
 
     ]
+
+    await update.message.reply_text(
+        "🤖 DEV AI BOT\n\n"
+        "Gelişmiş yapay zeka Telegram botu.\n"
+        "Aşağıdaki menüyü kullanabilirsin.",
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
 async def menu_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    query = update.callback_query
+    await query.answer()
+
+    if query.data == "menu_ai":
+
+        await query.edit_message_text(
+            "🤖 AI Sohbet\n\n"
+            "Kullanım:\n"
+            "/ai merhaba"
+        )
+
+    elif query.data == "menu_img":
+
+        await query.edit_message_text(
+            "🖼 Resim oluştur\n\n"
+            "Kullanım:\n"
+            "/img uzayda kedi"
+        )
+
+    elif query.data == "menu_commands":
+
+        await query.edit_message_text(
+            "⚡ Komutlar\n\n"
+            "/ai\n"
+            "/img\n"
+            "/joke\n"
+            "/meme\n"
+            "/roll\n"
+            "/coin\n"
+            "/8ball"
+        )
 
     query = update.callback_query
     await query.answer()
@@ -550,10 +586,12 @@ app.add_handler(CommandHandler("clear", clear))
 
 app.add_handler(CommandHandler("allowai", allowai))
 app.add_handler(CommandHandler("removeai", removeai))
+app.add_handler(CallbackQueryHandler(menu_buttons, pattern="menu_"))
 
 print("BOT ÇALIŞIYOR 🚀")
 
 
 app.run_polling()
+
 
 
