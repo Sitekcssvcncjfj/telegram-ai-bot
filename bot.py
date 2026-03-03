@@ -61,7 +61,40 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("➕ Beni Gruba Ekle", url=f"https://t.me/{context.bot.username}?startgroup=true")]
 
     ]
+async def menu_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
+    query = update.callback_query
+    await query.answer()
+
+    if query.data == "menu_ai":
+
+        await query.edit_message_text(
+            "🤖 AI Sohbet\n\n"
+            "Kullanım:\n"
+            "/ai merhaba"
+        )
+
+    elif query.data == "menu_img":
+
+        await query.edit_message_text(
+            "🖼 Resim oluştur\n\n"
+            "Kullanım:\n"
+            "/img uzayda kedi"
+        )
+
+    elif query.data == "menu_commands":
+
+        await query.edit_message_text(
+            "⚡ Komutlar\n\n"
+            "/ai\n"
+            "/img\n"
+            "/joke\n"
+            "/meme\n"
+            "/roll\n"
+            "/coin\n"
+            "/8ball\n"
+        )
+    
     await update.message.reply_text(
 
         "🤖 DEV AI BOT\n\n"
@@ -522,4 +555,5 @@ print("BOT ÇALIŞIYOR 🚀")
 
 
 app.run_polling()
+
 
