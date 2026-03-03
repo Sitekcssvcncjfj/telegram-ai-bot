@@ -49,11 +49,27 @@ rules_text = "Henüz kural ayarlanmadı."
 start_time = time.time()
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    keyboard = [
+
+        [InlineKeyboardButton("🤖 AI Sohbet", callback_data="menu_ai")],
+
+        [InlineKeyboardButton("🖼 Resim Oluştur", callback_data="menu_img")],
+
+        [InlineKeyboardButton("⚡ Komutlar", callback_data="menu_commands")],
+
+        [InlineKeyboardButton("➕ Beni Gruba Ekle", url=f"https://t.me/{context.bot.username}?startgroup=true")]
+
+    ]
+
     await update.message.reply_text(
+
         "🤖 DEV AI BOT\n\n"
-        "/ai mesaj\n"
-        "/img prompt\n"
-        "/dev\n"
+        "Gelişmiş yapay zeka Telegram botu.\n"
+        "Aşağıdaki menüyü kullanabilirsin.",
+
+        reply_markup=InlineKeyboardMarkup(keyboard)
+
     )
 
 async def ai(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -506,3 +522,4 @@ print("BOT ÇALIŞIYOR 🚀")
 
 
 app.run_polling()
+
