@@ -48,17 +48,36 @@ async def badword_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
 rules_text = "Henüz kural ayarlanmadı."
 start_time = time.time()
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def menu_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    keyboard = [
+    query = update.callback_query
+    await query.answer()
 
-        [InlineKeyboardButton("🤖 AI Sohbet", callback_data="menu_ai")],
-        [InlineKeyboardButton("🖼 Resim Oluştur", callback_data="menu_img")],
-        [InlineKeyboardButton("⚡ Komutlar", callback_data="menu_commands")],
-        [InlineKeyboardButton("➕ Beni Gruba Ekle", url=f"https://t.me/{context.bot.username}?startgroup=true")]
+    if query.data == "menu_ai":
+        await query.edit_message_text(
+            "🤖 AI Sohbet\n\n"
+            "Kullanım:\n"
+            "/ai merhaba"
+        )
 
-    ]
+    elif query.data == "menu_img":
+        await query.edit_message_text(
+            "🖼 Resim Oluşturma\n\n"
+            "Kullanım:\n"
+            "/img uzayda kedi"
+        )
 
+    elif query.data == "menu_commands":
+        await query.edit_message_text(
+            "⚡ Komutlar\n\n"
+            "/ai\n"
+            "/img\n"
+            "/joke\n"
+            "/meme\n"
+            "/roll\n"
+            "/coin\n"
+            "/8ball"
+        )
     await update.message.reply_text(
         "🤖 DEV AI BOT\n\n"
         "Gelişmiş yapay zeka Telegram botu.\n"
@@ -592,6 +611,7 @@ print("BOT ÇALIŞIYOR 🚀")
 
 
 app.run_polling()
+
 
 
 
