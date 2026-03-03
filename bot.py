@@ -504,4 +504,5 @@ app.add_handler(CommandHandler("removeai", removeai))
 
 print("BOT ÇALIŞIYOR 🚀")
 
+
 app.run_polling()
