@@ -22,9 +22,10 @@ BOT_TOKEN = "8601721344:AAFAX2X18OIB5EJRtLH6bC5PeqHHk39_lBc"
 GROQ_API_KEY = "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"
 SD_API_KEY = "e9UllPJBSNKpNceRl1nCPTaHw8TFFXKezYIPXB5oniYiKdXlACheJE32JcGb"
 
-OWNER_ID = 905372292738
-SUPPORT_USERNAME = "@garibansikenholding"
-BOT_USERNAME = "@AminogluAlBot"
+OWNER_ID = 6101127840
+
+SUPPORT_USERNAME = "garibansikenholding"
+BOT_USERNAME = "AminogluAlBot"
 
 groq_client = Groq(api_key=GROQ_API_KEY)
 
@@ -53,6 +54,7 @@ LIMIT_IMG = 3
 
 DAY = 86400
 
+
 def check_limit(user, feature):
 
     if user == OWNER_ID or user in premium_users:
@@ -66,11 +68,12 @@ def check_limit(user, feature):
     if now - usage[user]["time"] > DAY:
         usage[user] = {"time": now, "ai": 0, "img": 0}
 
-    if usage[user][feature] >= (LIMIT_AI if feature=="ai" else LIMIT_IMG):
+    if usage[user][feature] >= (LIMIT_AI if feature == "ai" else LIMIT_IMG):
         return False
 
     usage[user][feature] += 1
     return True
+
 
 # =====================
 # START
@@ -106,8 +109,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     )
 
+
 # =====================
-# KOMUT MENU
+# KOMUT MENÜ
 # =====================
 
 async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -126,6 +130,7 @@ async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     )
 
+
 # =====================
 # AI
 # =====================
@@ -141,14 +146,18 @@ async def ai(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user.id
     text = " ".join(context.args)
 
-    if not check_limit(user,"ai"):
+    if not text:
+        await update.message.reply_text("Kullanım: /ai mesaj")
+        return
+
+    if not check_limit(user, "ai"):
         await update.message.reply_text("❌ Günlük AI limitin doldu")
         return
 
     if user not in memory:
-        memory[user] = [{"role":"system","content":SYSTEM_PROMPT}]
+        memory[user] = [{"role": "system", "content": SYSTEM_PROMPT}]
 
-    memory[user].append({"role":"user","content":text})
+    memory[user].append({"role": "user", "content": text})
 
     response = groq_client.chat.completions.create(
         model="llama-3.1-8b-instant",
@@ -157,9 +166,10 @@ async def ai(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     reply = response.choices[0].message.content
 
-    memory[user].append({"role":"assistant","content":reply})
+    memory[user].append({"role": "assistant", "content": reply})
 
     await update.message.reply_text(reply)
+
 
 # =====================
 # CODE (PREMIUM)
@@ -177,9 +187,13 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     prompt = " ".join(context.args)
 
+    if not prompt:
+        await update.message.reply_text("Kullanım: /code python bot yaz")
+        return
+
     messages = [
-        {"role":"system","content":"Kod yazan bir AI'sın. Sadece kod üret."},
-        {"role":"user","content":prompt}
+        {"role": "system", "content": "Kod yazan bir AI'sın. Sadece kod üret."},
+        {"role": "user", "content": prompt}
     ]
 
     response = groq_client.chat.completions.create(
@@ -188,6 +202,7 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     await update.message.reply_text(response.choices[0].message.content)
+
 
 # =====================
 # AI RESIM
@@ -198,7 +213,11 @@ async def img(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user.id
     prompt = " ".join(context.args)
 
-    if not check_limit(user,"img"):
+    if not prompt:
+        await update.message.reply_text("Kullanım: /img açıklama")
+        return
+
+    if not check_limit(user, "img"):
         await update.message.reply_text("❌ Günlük resim limitin doldu")
         return
 
@@ -214,11 +233,14 @@ async def img(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "samples": "1"
     }
 
-    r = requests.post(url,json=payload).json()
+    r = requests.post(url, json=payload).json()
 
-    image = r["output"][0]
+    try:
+        image = r["output"][0]
+        await update.message.reply_photo(image)
+    except:
+        await update.message.reply_text("❌ Resim oluşturulamadı")
 
-    await update.message.reply_photo(image)
 
 # =====================
 # LIMIT
@@ -228,31 +250,37 @@ async def limit(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user = update.message.from_user.id
 
-    if user in premium_users or user==OWNER_ID:
+    if user in premium_users or user == OWNER_ID:
 
         await update.message.reply_text(
             "💎 Premium kullanıcı\nSınırsız kullanım"
         )
         return
 
-    ai = usage.get(user,{}).get("ai",0)
-    img = usage.get(user,{}).get("img",0)
+    ai = usage.get(user, {}).get("ai", 0)
+    img = usage.get(user, {}).get("img", 0)
 
     await update.message.reply_text(
 
-        f"📊 Limit\n\n"
+        f"📊 Günlük limit\n\n"
         f"AI: {ai}/{LIMIT_AI}\n"
         f"Resim: {img}/{LIMIT_IMG}"
 
     )
 
+
 # =====================
-# PREMIUM
+# PREMIUM EKLE
 # =====================
 
 async def addpremium(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.message.from_user.id != OWNER_ID:
+        await update.message.reply_text("❌ Bu komut sadece bot sahibine ait")
+        return
+
+    if not context.args:
+        await update.message.reply_text("Kullanım: /addpremium USER_ID")
         return
 
     user = int(context.args[0])
@@ -260,15 +288,45 @@ async def addpremium(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text("✅ Premium verildi")
 
+
+# =====================
+# PREMIUM SIL
+# =====================
+
 async def delpremium(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.message.from_user.id != OWNER_ID:
+        return
+
+    if not context.args:
         return
 
     user = int(context.args[0])
     premium_users.discard(user)
 
     await update.message.reply_text("❌ Premium kaldırıldı")
+
+
+# =====================
+# PREMIUM LISTE
+# =====================
+
+async def premiumlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if update.message.from_user.id != OWNER_ID:
+        return
+
+    if not premium_users:
+        await update.message.reply_text("Premium kullanıcı yok")
+        return
+
+    text = "💎 Premium Kullanıcılar\n\n"
+
+    for u in premium_users:
+        text += f"{u}\n"
+
+    await update.message.reply_text(text)
+
 
 # =====================
 # ETIKET AI
@@ -282,14 +340,15 @@ async def mention_ai(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     user = update.message.from_user.id
-    clean = text.replace(f"@{BOT_USERNAME.lower()}","")
 
-    if not check_limit(user,"ai"):
+    clean = text.replace(f"@{BOT_USERNAME.lower()}", "")
+
+    if not check_limit(user, "ai"):
         return
 
     messages = [
-        {"role":"system","content":SYSTEM_PROMPT},
-        {"role":"user","content":clean}
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": clean}
     ]
 
     response = groq_client.chat.completions.create(
@@ -301,20 +360,22 @@ async def mention_ai(update: Update, context: ContextTypes.DEFAULT_TYPE):
         response.choices[0].message.content
     )
 
+
 # =====================
 # BOT
 # =====================
 
 app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-app.add_handler(CommandHandler("start",start))
-app.add_handler(CommandHandler("ai",ai))
-app.add_handler(CommandHandler("img",img))
-app.add_handler(CommandHandler("code",code))
-app.add_handler(CommandHandler("limit",limit))
+app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("ai", ai))
+app.add_handler(CommandHandler("img", img))
+app.add_handler(CommandHandler("code", code))
+app.add_handler(CommandHandler("limit", limit))
 
-app.add_handler(CommandHandler("addpremium",addpremium))
-app.add_handler(CommandHandler("delpremium",delpremium))
+app.add_handler(CommandHandler("addpremium", addpremium))
+app.add_handler(CommandHandler("delpremium", delpremium))
+app.add_handler(CommandHandler("premiumlist", premiumlist))
 
 app.add_handler(CallbackQueryHandler(menu))
 
